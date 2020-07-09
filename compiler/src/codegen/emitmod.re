@@ -17,9 +17,13 @@ let emit_module = ({asm, signature}, outfile) => {
     output_string(oc, sig_string);
     close_out(oc);
   };
-  let (encoded, _) = Binaryen.Module.write(asm, None);
+  let (encoded, map) = Binaryen.Module.write(asm, Some(outfile ++ ".map"));
+  let map = Option.get(map);
   let oc = open_out_bin(outfile);
   output_bytes(oc, encoded);
   Cmi_format.output_cmi(outfile, oc, signature);
+  close_out(oc);
+  let oc = open_out_bin(outfile ++ ".map");
+  output_string(oc, map);
   close_out(oc);
 };

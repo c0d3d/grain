@@ -1,4 +1,7 @@
+import 'source-map-support/register';
 import 'fast-text-encoding';
+
+console.log(__dirname);
 
 import { printClosure } from './core/closures';
 import { ManagedMemory, TRACE_MEMORY } from './core/memory';
