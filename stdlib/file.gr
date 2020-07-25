@@ -1,0 +1,55 @@
+import Int64 from 'stdint64'
+import Option from 'option'
+import File from 'sys/file'
+import Path from 'path'
+import String from 'strings'
+
+let openPlainRead = (path) => {
+    let pathStr = Path.toString(path);
+    let fd = File.pathOpen(
+        File.pwdfd,
+        [File.SymlinkFollow],
+        pathStr,
+        [File.FdRead],
+        [],
+        [],
+        []
+    );
+    
+    let stats = File.pathFilestats(File.pwdfd, [File.SymlinkFollow], pathStr);
+    
+    match (stats.filetype) {
+        # TODO Need to figure out "or" pattern
+        | File.RegularFile => void
+        | File.CharacterDevice => void
+        | File.SocketDatagram => void
+        | File.SocketStream => void
+        | _ => fail String.concatMany(["Attempt to open non-readable file type ('", pathStr, "')"])
+    }
+
+    (fd, stats)
+}
+
+let withReadableFile = (path, f) => {
+    let (fd, fStats) = openPlainRead(path);
+    let ans = f(fd, fStats);
+    File.fdClose(fd);
+    ans
+}
+
+export let readToString = (
+    path #: Path
+) => {
+    let optAns = withReadableFile(path, (fd, fStats) => {
+        let sizeNum = Int64.toNumber(fStats.size)
+        let (ans, numBytes) = File.fdRead(fd, sizeNum);
+        if (numBytes != sizeNum) {
+            None
+        } else {
+            Some(ans)
+        }
+    })
+
+    Option.expect("Couldn't read entire file!", optAns)
+}
+

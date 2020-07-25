@@ -6,6 +6,18 @@ export *
 # @returns String
 import foreign wasm concat : (String, String) -> String from 'stdlib-external/string'
 
+# Concatenate many strings. 
+# Output string is in the same order as the input strings.
+# @param stringList: List<String> - the strings to concatenate
+# @returns String
+let concatMany : (List<String>) -> String = (stringList) => {
+    let rec concatManyAux = (stringList, acc) => match (stringList) {
+        | [] => acc
+        | [hd, ...tl] => concatManyAux(tl, concat(acc, hd))
+    };
+    concatManyAux(stringList, "")
+}
+
 # Get the character length of a string.
 # @param input: String - The string to check
 # @returns Number

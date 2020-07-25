@@ -1,0 +1,13 @@
+import String from 'strings'
+
+data Path = Path(String) # Right now, keep it simple. Will be easy to work with in the future.
+
+export let isAbsolute = (pp) => match (pp) {
+    Path(p) => String.startsWith("/", p)
+}
+export let isRelative = (p) => !isAbsolute(p)
+
+export let toString = (pp) => match (pp) {
+    Path(p) => p
+}
+export let fromString = (p) => Path(p)
